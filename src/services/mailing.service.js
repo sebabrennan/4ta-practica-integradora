@@ -20,10 +20,12 @@ const createMsgReset = (first_name) => {
     </p>`;
 };
 
+const createMsgUpdateActive = (first_name) => `<h1>Hola ${first_name}, hemos notado tu ausencia y queremos que regreses a nuestra plataforma! Inicia sesión y obtiene un beneficio por volver!`
+
 /**
  * 
  * @param {*} user 
- * @param {*} service register | resetPass
+ * @param {*} service register | resetPass | updateActive
  * @param {*} token 
  * @returns 
  */
@@ -37,6 +39,8 @@ export const sendMail = async (user, service, token = null) => {
       ? (msg = createMsgRegister(first_name))
       : service === "resetPass"
       ? (msg = createMsgReset(first_name))
+      : service === "updateActive"
+      ? (msg = createMsgUpdateActive(first_name))
       : (msg = "");
 
     let subj = "";
@@ -46,6 +50,8 @@ export const sendMail = async (user, service, token = null) => {
         ? "Bienvenido/a"
         : service === "resetPass"
         ? "Restablecimiento de contraseña"
+        :service === "updateActive"
+        ? "¡Volvé a nuestra plataforma y obtené este beneficio!"
         : "";
 
     const gmailOptions = {

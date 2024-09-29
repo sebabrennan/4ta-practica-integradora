@@ -14,9 +14,9 @@ import { logger } from '../utils/logger.js';
  * @returns 
  */
 export const checkAuth = async (req, res, next) => {
-  const token = req.cookies.token
-  if (!token) return httpResponse.Forbidden(res, "Token vencido") 
   try {
+    const token = req.cookies.token
+    if (!token) return httpResponse.Forbidden(res, "Token vencido") 
     const decode = jwt.verify(token, configEnv.SECRET_KEY_JWT);
     const user = await userService.getById(decode.userId);
     if (!user) httpResponse.NotFound(res, "User not found")

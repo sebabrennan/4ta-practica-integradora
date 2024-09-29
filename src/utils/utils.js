@@ -22,3 +22,30 @@ export const createHash = password => bcryptjs.hashSync(password, bcryptjs.genSa
  */
 export const isValidPassword = (password, user) => bcryptjs.compareSync(password, user.password);
 /* ------------------------------------ - ----------------------------------- */
+
+//Formato de fecha y hora
+export const fechaHora = new Date().toLocaleString('es-ES', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  });
+
+/**
+ * Recibe la fecha de la última conexión y retorna true si han pasado mas de X
+ * tiempo desde esa fecha o false si no ha pasado ese tiempo
+ * @param {*} lastConnectionDate Date
+ * @returns boolean
+ */
+export const hasBeenMoreThanXTime = (lastConnectionDate) => {
+  const dateNow = new Date();
+  const diffMs = dateNow - lastConnectionDate;
+  const hours48Ms = 48 * 60 * 60 * 1000; //48hs en ms
+  const minMs = 60 * 1000; //1 minuto
+
+  return diffMs > minMs; //diferencia es mayor a 48hs en ms
+};
+

@@ -2,7 +2,6 @@ import Controllers from "./class.controller.js";
 import UserService from '../services/user.services.js';
 import httpResponse from "../utils/http.response.js";
 import { sendMail } from "../services/mailing.service.js";
-//import { logger } from "../utils/logger.js";
 
 const userService = new UserService();
 
@@ -53,11 +52,10 @@ export default class UserController extends Controllers{
         res.cookie('tokenpass', token);
         httpResponse.Ok(res, "Email reset pass send OK")
       } else httpResponse.NotFound(res, "error reset pass send") 
-      //createResponse(res, 404, 'error email reset pass send')
     } catch (error) {
       next(error)
     }
-  }
+  };
 
   async updatePass(req, res,next){
     try {
@@ -72,7 +70,7 @@ export default class UserController extends Controllers{
     } catch (error) {
       next(error)
     }
-  }
+  };
 
   async updateRole (req, res, next){
     const { id } = req.params;
@@ -84,6 +82,15 @@ export default class UserController extends Controllers{
     } else {
       return httpResponse.NotFound(res, "ID o role not found")
     }
-  }
+  };
 
+  checkUsersLastConnection = async(req, res, next) => {
+    try {
+      const response = await this.service.checkUsersLastConnection();
+      if(!response) return httpResponse.NotFound(res, "Error al actualizar los estados")
+      return httpResponse.Ok(res, response);
+    } catch (error) {
+      next(error);
+    }
+  };
 };

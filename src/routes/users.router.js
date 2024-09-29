@@ -19,5 +19,7 @@ router.put('/new-pass', checkAuth, controller.updatePass);
 
 router.put('/premium/:id', [checkAuth, checkAdmin], controller.updateRole);
 
+router.put('/', [checkAuth, checkAdmin], controller.checkUsersLastConnection)
+
 export default router;
 

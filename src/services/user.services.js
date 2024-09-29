@@ -3,10 +3,11 @@ import UserDaoMongo from "../daos/user.dao.js";
 import jwt from "jsonwebtoken";
 import "dotenv/config";
 import configEnv from "../config/env.js";
-import { createHash, isValidPassword } from "../utils/utils.js";
+import { createHash, isValidPassword, hasBeenMoreThanXTime } from "../utils/utils.js";
 import CartDaoMongo from "../daos/cart.dao.js";
 import UserRepository from "../repository/user.repository.js";
 import { sendMail } from "./mailing.service.js";
+
 const userRepository = new UserRepository();
 
 const userDao = new UserDaoMongo();
@@ -21,7 +22,7 @@ export default class UserService extends Services {
     const payload = {
       userId: user._id,
     };
-    const token = jwt.sign(payload, configEnv.SECRET_KEY_JWT, { expiresIn: time }); 
+    const token = jwt.sign(payload, configEnv.SECRET_KEY_JWT, { expiresIn: time });
     return token;
   }
 
@@ -48,6 +49,7 @@ export default class UserService extends Services {
             ...user,
             password: createHash(password),
             cart: cartUser._id,
+            last_connection: new Date()
           });
           await sendMail(user, "register");
           return newUser;
@@ -66,7 +68,10 @@ export default class UserService extends Services {
       if (!userExist) return null;
       const passValid = isValidPassword(password, userExist);
       if (!passValid) return null;
-      if (userExist && passValid) return this.generateToken(userExist);
+      if (userExist && passValid){ 
+        await this.updateLastConnection(userExist._id);
+        return this.generateToken(userExist);
+      } 
     } catch (error) {
       throw new Error(error);
     }
@@ -110,5 +115,35 @@ export default class UserService extends Services {
     if(!user) return null
     return await this.dao.update(id, obj)
 
+  }
+
+  async updateLastConnection(userId) {
+    return await this.dao.update(userId, {
+      last_connection: new Date(),
+    });
+  }
+
+  async checkUsersLastConnection(){
+    try {
+      const usersInactive = [];
+      const users = await this.dao.getAll();
+      if(users.length > 0){
+        for (const user of users) {
+          if(
+            user.last_connection &&
+            hasBeenMoreThanXTime(user.last_connection)
+          ){
+            await this.dao.update(user._id, {
+              active: false
+            });
+            await sendMail(user, 'updateActive')
+            usersInactive.push(user.email);
+          }
+        }
+      }
+      return `USUARIOS INACTIVOS = ${usersInactive}`;
+    } catch (error) {
+      throw new Error(error)
+    }
   }
 }

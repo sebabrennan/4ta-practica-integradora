@@ -1,4 +1,6 @@
 import {Schema, model} from 'mongoose'
+import { fechaHora } from '../../utils/utils.js';
+
 
 const usersSchema = new Schema({
   first_name: {
@@ -7,6 +9,7 @@ const usersSchema = new Schema({
   },
   last_name: {
       type: String,
+      required: true
   },
   email: {
       type: String,
@@ -15,13 +18,16 @@ const usersSchema = new Schema({
   },
   age: {
       type: Number,
+      required: true
   },
   password: { 
       type: String,
+      required: true
   },
   role: {
       type: String,
-      default: 'user'
+      default: 'user',
+      required: true
   },
   image: {
     type: String
@@ -39,6 +45,16 @@ const usersSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "carts",
     default: []
+  },
+  last_connection: {
+    type: Date,
+    //default: new Date().toLocaleString('es-ES',{
+      //hour12: false
+    //})
+  },
+  active: {
+    type: Boolean,
+    default: true
   }
 });
 
